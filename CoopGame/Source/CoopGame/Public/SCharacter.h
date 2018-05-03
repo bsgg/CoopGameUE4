@@ -28,6 +28,7 @@ protected:
 	void BeginCrouch();
 	void EndCrouch();
 
+
 	// VisibleAnywhere: Indicates that this property is visible in property windows, but cannot be edited at all
 	// BlueprintReadOnly = This property can be read by blueprints, but not modified.
 	// We can modify the properties but not create a new object and assign to this one
