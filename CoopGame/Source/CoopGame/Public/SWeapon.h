@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "SWeapon.generated.h"
 
+
 UCLASS()
 class COOPGAME_API ASWeapon : public AActor
 {
@@ -29,5 +30,8 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class USkeletalMeshComponent * MeshComp;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
+	TSubclassOf<class UDamageType> DamageType;
 	
 };
