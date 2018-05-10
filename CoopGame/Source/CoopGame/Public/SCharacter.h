@@ -28,6 +28,9 @@ protected:
 	void BeginCrouch();
 	void EndCrouch();
 
+	void BeginZoom();
+	void EndZoom();
+
 
 	// VisibleAnywhere: Indicates that this property is visible in property windows, but cannot be edited at all
 	// BlueprintReadOnly = This property can be read by blueprints, but not modified.
@@ -37,6 +40,17 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USpringArmComponent* SpringArmComp;
+
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Player")
+	float ZoomedFOV;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Player", meta = (ClampMin = 0.1, ClampMax = 100))
+	float ZoomInterpSpeed;
+
+	/* Default FOV set during begin play */
+	float DefaultFOV;
+	bool bWantsToZoom;
 
 public:	
 	// Called every frame
