@@ -100,7 +100,7 @@ void ASWeapon::PlayFireEffect(FVector TraceEndPoint)
 
 		if (PC)
 		{
-			PC->ClientPlayCameraShake(FireCamShake);
+			PC->ClientPlayCameraShake(FireCamShake);  
 		}
 	}
 }
