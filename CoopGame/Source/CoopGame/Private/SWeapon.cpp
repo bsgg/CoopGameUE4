@@ -6,6 +6,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "CoopGame.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
+
 
 static int32 DebugWeaponDrawing = 0;
 FAutoConsoleVariableRef CVARDebugWeapongDrawing(
@@ -46,20 +49,34 @@ void ASWeapon::Fire()
 		QueryParams.AddIgnoredActor(Owner);
 		QueryParams.AddIgnoredActor(this);
 		QueryParams.bTraceComplex = true;// Trace each individually triangle (more expensive but more accurately)
+		QueryParams.bReturnPhysicalMaterial = true;
 
 		// Particle TracerComp "Target" parameter
 		FVector TracerEndPoint = TraceEnd;
 
 		FHitResult Hit;
-		if (GetWorld()->LineTraceSingleByChannel(Hit, EyeLocation, TraceEnd, ECC_Visibility, QueryParams))
+		if (GetWorld()->LineTraceSingleByChannel(Hit, EyeLocation, TraceEnd, COLLISION_WEAPON, QueryParams))
 		{
 			// Blocking hit, process damage 
 			AActor* HitActor = Hit.GetActor();
-			UGameplayStatics::ApplyPointDamage(HitActor, 20.0f, ShotDirection, Hit, Owner->GetInstigatorController(), this, DamageType);
+			UGameplayStatics::ApplyPointDamage(HitActor, 20.0f, ShotDirection, Hit, Owner->GetInstigatorController(), this, DamageType);			
 
-			if (ImpactEffect != nullptr)
+			EPhysicalSurface SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
+			UParticleSystem* SelectedEffect = nullptr;
+			switch (SurfaceType)
 			{
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
+				case SURFACE_FLESHDEFAULT:
+				case SURFACE_FLESHVUNERABLE:
+					SelectedEffect = FleshImpactEffect;
+				break;
+				default:
+					SelectedEffect = DefaultImpactEffect;
+					break;
+			}
+
+			if (SelectedEffect != nullptr)
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SelectedEffect, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());
 			}
 
 			TracerEndPoint = Hit.ImpactPoint;
