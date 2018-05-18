@@ -9,6 +9,7 @@
 class UCameraComponent;
 class USpringArmComponent;
 class ASWeapon;
+class USHealthComponent;
 
 UCLASS()
 class COOPGAME_API ASCharacter : public ACharacter
@@ -32,6 +33,7 @@ protected:
 	void BeginZoom();
 	void EndZoom();
 
+	USHealthComponent* HealthComp;
 
 	// VisibleAnywhere: Indicates that this property is visible in property windows, but cannot be edited at all
 	// BlueprintReadOnly = This property can be read by blueprints, but not modified.
@@ -64,6 +66,11 @@ protected:
 	void StartFire();
 	void StopFire();
 
+	UFUNCTION()
+	void OnHealthChanged(USHealthComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+
+	
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -72,5 +79,9 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual FVector GetPawnViewLocation() const override; // Override this function to set the view location as the camera instead of the default (the eye)
+
+														  // Pawn died previously
+	UPROPERTY(BlueprintReadOnly, Category = "Player")
+	bool bDied;
 	
 };
