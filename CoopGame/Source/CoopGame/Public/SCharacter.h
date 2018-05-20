@@ -33,7 +33,7 @@ protected:
 	void BeginZoom();
 	void EndZoom();
 
-	USHealthComponent* HealthComp;
+	
 
 	// VisibleAnywhere: Indicates that this property is visible in property windows, but cannot be edited at all
 	// BlueprintReadOnly = This property can be read by blueprints, but not modified.
@@ -43,6 +43,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USpringArmComponent* SpringArmComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	USHealthComponent* HealthComp;
 
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Player")
@@ -67,7 +70,7 @@ protected:
 	void StopFire();
 
 	UFUNCTION()
-	void OnHealthChanged(USHealthComponent* HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+	void OnHealthChanged(USHealthComponent* OwningHealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
 	
 
