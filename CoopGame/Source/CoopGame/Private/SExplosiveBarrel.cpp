@@ -40,11 +40,11 @@ void ASExplosiveBarrel::OnHealthChanged(USHealthComponent* OwningHealthComp, flo
 
 	if (Health <= 0.0f)
 	{
-		bExploded = true;
+		bExploded = true; 
 		FVector BoostIntensity = FVector::UpVector * ExplosionImpulse;
 		MeshComp->AddImpulse(BoostIntensity, NAME_None, true);
 
-		//UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation());
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation(), FRotator::ZeroRotator, true);
 		MeshComp->SetMaterial(0, ExplosionMaterial);
 		RadialForceComp->FireImpulse();
 	}

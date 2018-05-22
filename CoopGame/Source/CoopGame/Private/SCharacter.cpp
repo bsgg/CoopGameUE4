@@ -37,6 +37,7 @@ ASCharacter::ASCharacter()
 }
 
 // Called when the game starts or when spawned
+// Begin play is executed in both server and the client
 void ASCharacter::BeginPlay()
 {
 	Super::BeginPlay();  
