@@ -8,6 +8,7 @@
 #include "CoopGame.h"
 #include "SHealthComponent.h"
 #include "SWeapon.h"
+#include "Net/UnrealNetwork.h"
 
 
 // Sets default values
@@ -43,23 +44,30 @@ void ASCharacter::BeginPlay()
 	Super::BeginPlay();  
 
 	DefaultFOV = CameraComp->FieldOfView;
+	HealthComp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
 
-	// Spawn a default weapon
-	if (StarterWeaponClass)
+	// Only run this code if we are the server
+	if (Role = ROLE_Authority)
 	{
-		FActorSpawnParameters SpawnParms;
-		SpawnParms.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		UE_LOG(LogTemp, Warning, TEXT("[ASCharacter::BeginPlay] I am the server"));
 
-		CurrentWeapon = GetWorld()->SpawnActor<ASWeapon>(StarterWeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParms);
-
-		if (CurrentWeapon)
+		// Spawn a default weapon
+		if (StarterWeaponClass)
 		{
-			CurrentWeapon->SetOwner(this);
-			CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
+			FActorSpawnParameters SpawnParms;
+			SpawnParms.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+			CurrentWeapon = GetWorld()->SpawnActor<ASWeapon>(StarterWeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParms);
+
+			if (CurrentWeapon)
+			{
+				CurrentWeapon->SetOwner(this);
+				CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
+			}
 		}
 	}
 
-	HealthComp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
+	
 	
 }
 
@@ -171,5 +179,12 @@ void ASCharacter::OnHealthChanged(USHealthComponent* OwningHealthComp, float Hea
 		// After 10 seconds this pawn will be destroyed
 		SetLifeSpan(10.0f);
 	}
+}
+
+void ASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASCharacter, CurrentWeapon);
 }
 

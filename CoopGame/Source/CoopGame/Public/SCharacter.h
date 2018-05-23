@@ -58,6 +58,7 @@ protected:
 	float DefaultFOV;
 	bool bWantsToZoom;
 
+	UPROPERTY(Replicated)
 	ASWeapon* CurrentWeapon;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Player")

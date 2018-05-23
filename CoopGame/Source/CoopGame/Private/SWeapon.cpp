@@ -30,6 +30,8 @@ ASWeapon::ASWeapon()
 	TracerTargetName = "Target";
 	BaseDamage = 20.0f;
 	RateOfFire = 600;
+
+	SetReplicates(true);
 }
 
 void ASWeapon::BeginPlay()
