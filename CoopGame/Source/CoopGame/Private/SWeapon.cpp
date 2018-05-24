@@ -9,6 +9,7 @@
 #include "CoopGame.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "TimerManager.h"
+#include "Net/UnrealNetwork.h"
 
 
 static int32 DebugWeaponDrawing = 0;
@@ -31,7 +32,7 @@ ASWeapon::ASWeapon()
 	BaseDamage = 20.0f;
 	RateOfFire = 600;
 
-	SetReplicates(true);
+	SetReplicates(true);  
 }
 
 void ASWeapon::BeginPlay()
@@ -56,6 +57,11 @@ void ASWeapon::StopFire()
 
 void ASWeapon::Fire()
 {
+	if (Role < ROLE_Authority)
+	{
+		ServerFire();
+	}
+
 	// Trace the world from pawn eyes to crosshair location
 	AActor* Owner = GetOwner();
 
@@ -122,10 +128,32 @@ void ASWeapon::Fire()
 
 		PlayFireEffect(TracerEndPoint);
 
+		if (Role == ROLE_Authority)
+		{
+			HitScanTrace.TraceTo = TracerEndPoint;
+		}
+
 		LastFireTime = GetWorld()->TimeSeconds;
 		
 	}
 }
+
+void ASWeapon::OnRep_HitScanTrace()
+{
+	// Play cosmetic Effect
+	PlayFireEffect(HitScanTrace.TraceTo);
+}
+
+void ASWeapon::ServerFire_Implementation()
+{
+	Fire();
+}
+
+bool ASWeapon::ServerFire_Validate()
+{
+	return true;
+}
+
 
 void ASWeapon::PlayFireEffect(FVector TraceEndPoint)
 {
@@ -154,5 +182,15 @@ void ASWeapon::PlayFireEffect(FVector TraceEndPoint)
 			PC->ClientPlayCameraShake(FireCamShake);  
 		}
 	}
+}
+
+
+void ASWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	// HitScanTrace will be replicated everywhere except in the owner
+
+	DOREPLIFETIME_CONDITION(ASWeapon, HitScanTrace, COND_SkipOwner);
 }
 
