@@ -85,7 +85,7 @@ public:
 	virtual FVector GetPawnViewLocation() const override; // Override this function to set the view location as the camera instead of the default (the eye)
 
 														  // Pawn died previously
-	UPROPERTY(BlueprintReadOnly, Category = "Player")
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Player")
 	bool bDied;
 	
 };
