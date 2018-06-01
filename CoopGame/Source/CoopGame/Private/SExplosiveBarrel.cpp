@@ -52,7 +52,7 @@ void ASExplosiveBarrel::OnHealthChanged(USHealthComponent* OwningHealthComp, flo
 		MeshComp->AddImpulse(BoostIntensity, NAME_None, true);
 
 		//UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation(), FRotator::ZeroRotator, true);
-		//MeshComp->SetMaterial(0, ExplosionMaterial);
+		//MeshComp->SetMaterial(0, ExplosionMaterial);  
 		RadialForceComp->FireImpulse();
 	}
 }
