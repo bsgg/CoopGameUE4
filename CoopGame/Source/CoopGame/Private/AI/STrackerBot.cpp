@@ -7,6 +7,7 @@
 #include "GameFramework/Character.h"
 #include "AI/Navigation/NavigationPath.h"
 #include "DrawDebugHelpers.h"
+#include "Components/SHealthComponent.h"
 
 
 // Sets default values
@@ -19,6 +20,9 @@ ASTrackerBot::ASTrackerBot()
 	MeshComp->SetCanEverAffectNavigation(false);
 	MeshComp->SetSimulatePhysics(true);
 	RootComponent = MeshComp;
+
+	HealthComp = CreateDefaultSubobject<USHealthComponent>(TEXT("HealthComp"));
+	HealthComp->OnHealthChanged.AddDynamic(this, &ASTrackerBot::HandleTakeDamage);
 
 	bUseVelocityChange = false;
 	MovementForce = 1000;
@@ -78,7 +82,24 @@ void ASTrackerBot::Tick(float DeltaTime)
 	}
 
 	
-	DrawDebugSphere(GetWorld(), NextPathPoint, 20, 12, FColor::Yellow, false,0.0f, 1.0f);
+	DrawDebugSphere(GetWorld(), NextPathPoint, 20, 12, FColor::Yellow, false,0.0f, 1.0f); 
 
+}
+
+void ASTrackerBot::HandleTakeDamage(USHealthComponent* OwningHealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
+{
+	UE_LOG(LogTemp, Warning, TEXT("[ASTrackerBot::HandleTakeDamage] Health %s of %s"), *FString::SanitizeFloat(Health), *GetName());
+	// Pulse the material on Hit
+	if (MatInst == nullptr)
+	{
+		MatInst = MeshComp->CreateAndSetMaterialInstanceDynamicFromMaterial(0, MeshComp->GetMaterial(0));
+	}
+
+	if (MatInst != nullptr)
+	{
+		MatInst->SetScalarParameterValue("LastTimeDamageTaken", GetWorld()->TimeSeconds);
+	}
+
+	
 }
 
