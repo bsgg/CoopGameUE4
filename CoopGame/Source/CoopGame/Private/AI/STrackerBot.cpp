@@ -27,6 +27,9 @@ ASTrackerBot::ASTrackerBot()
 	bUseVelocityChange = false;
 	MovementForce = 1000;
 	RequiredDistanceToTarget = 100;
+
+	ExplosionDamage = 40;
+	ExplosionRadius = 200;
 	
 
 }
@@ -97,9 +100,34 @@ void ASTrackerBot::HandleTakeDamage(USHealthComponent* OwningHealthComp, float H
 
 	if (MatInst != nullptr)
 	{
-		MatInst->SetScalarParameterValue("LastTimeDamageTaken", GetWorld()->TimeSeconds);
+		MatInst->SetScalarParameterValue("LastTimeDamageTaken", GetWorld()->TimeSeconds); 
 	}
 
-	
+	if (Health <= 0.0f)
+	{
+		SelfDestruct();
+	}
+}
+
+void ASTrackerBot::SelfDestruct()
+{
+	if (bExploded)
+	{
+		return;
+	}
+
+	bExploded = true;
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplossionEffect, GetActorLocation());
+
+	TArray<AActor*> IgnoreActors;
+	IgnoreActors.Add(this);
+
+	// Apply damage
+	UGameplayStatics::ApplyRadialDamage(this, ExplosionDamage, GetActorLocation(), ExplosionRadius, nullptr, IgnoreActors, this, GetInstigatorController(), true );
+
+	DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 12, FColor::Red, false, 2.0f, 0 , 1.0f);
+
+	// Destroy actor inmeditely
+	Destroy();
 }
 
