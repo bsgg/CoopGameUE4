@@ -27,7 +27,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Powerups")
 	int32 TotalNumberOfTicks;
 
-	FTimerHandle TimerHandler_PowerupTick; 
+	FTimerHandle TimerHandler_PowerupTick;  
 
 	/* Total numbers of ticks applied */
 	int32 TicksProcessed;
