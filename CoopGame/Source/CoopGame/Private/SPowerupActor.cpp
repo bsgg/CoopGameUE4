@@ -39,9 +39,9 @@ void ASPowerupActor::OnRep_PowerupActive()
 	OnPowerupStateActiveChanged(bIsPowerupActive);
 }
 
-void ASPowerupActor::ActivatePowerup()
+void ASPowerupActor::ActivatePowerup(AActor* ActiveFor)
 {
-	OnActivated();
+	OnActivated(ActiveFor);
 
 	bIsPowerupActive = true;
 	// This function needs to be called if we are in the server because they are not called on server only in clients
