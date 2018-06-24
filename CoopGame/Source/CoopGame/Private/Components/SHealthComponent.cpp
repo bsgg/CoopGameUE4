@@ -13,6 +13,12 @@ USHealthComponent::USHealthComponent()
 	SetIsReplicated(true);
 }
 
+float USHealthComponent::GetHealth() const
+{
+	return Health;
+}
+
+
 
 // Called when the game starts
 void USHealthComponent::BeginPlay()
