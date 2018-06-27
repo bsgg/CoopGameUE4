@@ -8,6 +8,9 @@
 
 enum class EWaveState : uint8;
 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnActorKilled, AActor*, VictimActor, AActor*, KillerActor, AController*, KillerController); // Killed actor, Killer actor
+
 /**
  * 
  */
@@ -60,5 +63,9 @@ public:
 	virtual void StartPlay() override;
 
 	virtual void Tick(float DeltaSeconds) override;
+
+	// BlueprintAssignable = Usable with Multicast Delegates only. Exposes the property for assigning in Blueprints.
+	UPROPERTY(BlueprintAssignable, Category = "GameMode")
+	FOnActorKilled OnActorKilled;
 	
 };

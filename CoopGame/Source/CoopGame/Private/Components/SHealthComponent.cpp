@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SHealthComponent.h"
+#include "SGameMode.h"
 #include "Net/UnrealNetwork.h"
 
 
@@ -10,6 +11,8 @@ USHealthComponent::USHealthComponent()
 {
 	DefaultHealth = 100;
 
+	bIsDead = false;
+
 	SetIsReplicated(true);
 }
 
@@ -17,8 +20,6 @@ float USHealthComponent::GetHealth() const
 {
 	return Health;
 }
-
-
 
 // Called when the game starts
 void USHealthComponent::BeginPlay()
@@ -49,7 +50,7 @@ void USHealthComponent::OnRep_Health(float OldHealth)
 
 void USHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
 {
-	if (Damage <= 0.0f)
+	if (Damage <= 0.0f || bIsDead)
 	{
 		return;
 	}
@@ -59,7 +60,19 @@ void USHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage, 
 
 	//UE_LOG(LogTemp, Warning, TEXT("[USHealthComponent::HandleTakeAnyDamage] Health: %s"), *FString::SanitizeFloat(Health));
 
+	bIsDead = Health <= 0.0f;
+
 	OnHealthChanged.Broadcast(this, Health, Damage, DamageType, InstigatedBy, DamageCauser);
+
+
+	if (Health <= 0)
+	{
+		ASGameMode* GM = Cast<ASGameMode>(GetWorld()->GetAuthGameMode());
+		if (GM)
+		{
+			GM->OnActorKilled.Broadcast(GetOwner(), DamageCauser, InstigatedBy );
+		}
+	}
 }
 
 
