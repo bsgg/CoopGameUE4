@@ -9,7 +9,7 @@
 enum class EWaveState : uint8;
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnActorKilled, AActor*, VictimActor, AActor*, KillerActor, AController*, KillerController); // Killed actor, Killer actor
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnActorKilled, AActor*, VictimActor, AActor*, KillerActor, AController*, KillerController);// Killed actor, Killer actor
 
 /**
  * 
@@ -55,6 +55,8 @@ protected:
 	void GameOver();
 
 	void SetWaveState(EWaveState NewState);
+
+	void RestartDeadPlayers();
 
 public:
 

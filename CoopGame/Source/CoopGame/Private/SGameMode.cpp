@@ -27,7 +27,21 @@ void ASGameMode::SetWaveState(EWaveState NewState)
 	{
 		GS->SetWaveState(NewState);
 	}
+}
 
+void ASGameMode::RestartDeadPlayers()
+{
+
+	// Get all player controllers available
+	// This code will be run on server so we will h ave all player controllers availables, not in client
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APlayerController* PC = It->Get();
+		if (PC && PC->GetPawn() == nullptr)
+		{
+			RestartPlayer(PC);
+		}
+	}
 }
 
 void ASGameMode::Tick(float DeltaSeconds)
@@ -85,6 +99,8 @@ void ASGameMode::PrepareForNextWave()
 	GetWorldTimerManager().SetTimer(TimerHandle_NextWaveStart, this, &ASGameMode::StartWave, TimeBetweenWaves, false);
 
 	SetWaveState(EWaveState::WaitingToStart);
+
+	RestartDeadPlayers();
 }
 
 void ASGameMode::CheckWaveState()
