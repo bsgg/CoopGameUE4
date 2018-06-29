@@ -48,9 +48,9 @@ void ASGameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	CheckWaveState();
+	//CheckWaveState();
 
-	CheckAnyPlayerAlive();
+	//CheckAnyPlayerAlive();
 
 }
 
@@ -68,7 +68,7 @@ void ASGameMode::StartPlay()
 {
 	Super::StartPlay();
 
-	PrepareForNextWave();
+	//PrepareForNextWave();
 }
 
 void ASGameMode::SpawnBotTimerElapsed()
@@ -87,8 +87,6 @@ void ASGameMode::SpawnBotTimerElapsed()
 void ASGameMode::EndWave()
 {
 	GetWorldTimerManager().ClearTimer(TimerHandle_BotSpawner);
-
-	//PrepareForNextWave();
 
 	SetWaveState(EWaveState::WaitingToComplete);
 }
