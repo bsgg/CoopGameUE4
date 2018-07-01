@@ -26,23 +26,24 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	USphereComponent* SphereComp;
 
-	UPROPERTY(VisibleAnywhere,Category = "Components")
+	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UDecalComponent* DecalComp;
 
-	UPROPERTY(EditInstanceOnly, Category="PickupActor")
+	UPROPERTY(EditInstanceOnly, Category = "PickupActor")
 	TSubclassOf<ASPowerupActor> PowerUpClass;
 
 	ASPowerupActor* PowerUpInstance;
 
 	UPROPERTY(EditInstanceOnly, Category = "PickupActor")
-	float CoolDownDuration;
+	float CooldownDuration;
 
-	FTimerHandle TimerHandle_RespawnTimer; 
+	FTimerHandle TimerHandle_RespawnTimer;
 
-	UFUNCTION()
 	void Respawn();
 
-public:
-	void NotifyActorBeginOverlap(AActor* OtherActor) override;
+public:	
+
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
+
 	
 };

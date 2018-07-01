@@ -3,4 +3,4 @@
 #include "CoopGame.h"
 #include "Modules/ModuleManager.h"
 
-IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, CoopGame, "CoopGame" );
+IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, CoopGame, "CoopGame" ); 

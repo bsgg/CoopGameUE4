@@ -21,6 +21,9 @@ enum class EWaveState : uint8
 
 	GameOver,
 };
+
+
+
 /**
  * 
  */
@@ -34,7 +37,7 @@ protected:
 	UFUNCTION()
 	void OnRep_WaveState(EWaveState OldState);
 
-	UFUNCTION(BlueprintImplementableEvent, Category="GameState")
+	UFUNCTION(BlueprintImplementableEvent, Category = "GameState")
 	void WaveStateChanged(EWaveState NewState, EWaveState OldState);
 
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_WaveState, Category = "GameState")

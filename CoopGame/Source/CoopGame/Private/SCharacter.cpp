@@ -11,6 +11,7 @@
 #include "Net/UnrealNetwork.h"
 
 
+
 // Sets default values
 ASCharacter::ASCharacter()
 {
@@ -18,110 +19,53 @@ ASCharacter::ASCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
-	SpringArmComp->bUsePawnControlRotation = true; // Use this to properly rotate the camera with the player
+	SpringArmComp->bUsePawnControlRotation = true;
 	SpringArmComp->SetupAttachment(RootComponent);
 
-	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
-	CameraComp->SetupAttachment(SpringArmComp);  
+	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Ignore);
 
 	HealthComp = CreateDefaultSubobject<USHealthComponent>(TEXT("HealthComp"));
-	
 
-	// Enable Crouch
-	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
-	ZoomedFOV = 65;
-	ZoomInterpSpeed = 20.0f;
+	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
+	CameraComp->SetupAttachment(SpringArmComp);
+
+	ZoomedFOV = 65.0f;
+	ZoomInterpSpeed = 20;
 
 	WeaponAttachSocketName = "WeaponSocket";
 }
 
 // Called when the game starts or when spawned
-// Begin play is executed in both server and the client
 void ASCharacter::BeginPlay()
 {
-	Super::BeginPlay();  
-
+	Super::BeginPlay();
+	
 	DefaultFOV = CameraComp->FieldOfView;
 	HealthComp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
 
-	// Only run this code if we are the server
-	if (Role = ROLE_Authority)
+	if (Role == ROLE_Authority)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[ASCharacter::BeginPlay] I am the server"));
-
 		// Spawn a default weapon
-		if (StarterWeaponClass)
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		CurrentWeapon = GetWorld()->SpawnActor<ASWeapon>(StarterWeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
+		if (CurrentWeapon)
 		{
-			FActorSpawnParameters SpawnParms;
-			SpawnParms.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-			CurrentWeapon = GetWorld()->SpawnActor<ASWeapon>(StarterWeaponClass, FVector::ZeroVector, FRotator::ZeroRotator, SpawnParms);
-
-			if (CurrentWeapon)
-			{
-				CurrentWeapon->SetOwner(this);
-				CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
-			}
+			CurrentWeapon->SetOwner(this);
+			CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponAttachSocketName);
 		}
 	}
-
-	
-	
 }
 
-// Called every frame
-void ASCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	float TargetFOV = bWantsToZoom ? ZoomedFOV : DefaultFOV;
-
-	float NewFOV = FMath::FInterpTo(CameraComp->FieldOfView, TargetFOV, DeltaTime, ZoomInterpSpeed);
-	
-	CameraComp->SetFieldOfView(NewFOV);
-
-}
-
-// Called to bind functionality to input
-void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	 
-	PlayerInputComponent->BindAxis("MoveForward", this, &ASCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &ASCharacter::MoveRight);
-
-	PlayerInputComponent->BindAxis("LookUp", this, &ASCharacter::AddControllerPitchInput);
-	PlayerInputComponent->BindAxis("Turn", this, &ASCharacter::AddControllerYawInput); 
-
-	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ASCharacter::BeginCrouch);
-	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ASCharacter::EndCrouch);
-
-	// Jump is part of ACharacter
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-
-	PlayerInputComponent->BindAction("Zoom", IE_Pressed, this, &ASCharacter::BeginZoom);
-	PlayerInputComponent->BindAction("Zoom", IE_Released, this, &ASCharacter::EndZoom);
-
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ASCharacter::StartFire);
-	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ASCharacter::StopFire);
-}
-
-FVector ASCharacter::GetPawnViewLocation() const
-{
-	if (CameraComp != nullptr)
-	{
-		return CameraComp->GetComponentLocation();
-	}
-
-	return Super::GetPawnViewLocation();
-}
 
 void ASCharacter::MoveForward(float Value)
 {
 	AddMovementInput(GetActorForwardVector() * Value);
 }
+
 
 void ASCharacter::MoveRight(float Value)
 {
@@ -133,15 +77,20 @@ void ASCharacter::BeginCrouch()
 {
 	Crouch();
 }
+
+
 void ASCharacter::EndCrouch()
 {
 	UnCrouch();
 }
 
+
 void ASCharacter::BeginZoom()
 {
 	bWantsToZoom = true;
 }
+
+
 void ASCharacter::EndZoom()
 {
 	bWantsToZoom = false;
@@ -155,6 +104,8 @@ void ASCharacter::StartFire()
 		CurrentWeapon->StartFire();
 	}
 }
+
+
 void ASCharacter::StopFire()
 {
 	if (CurrentWeapon)
@@ -163,29 +114,76 @@ void ASCharacter::StopFire()
 	}
 }
 
-void ASCharacter::OnHealthChanged(USHealthComponent* OwningHealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser)
+
+void ASCharacter::OnHealthChanged(USHealthComponent* OwningHealthComp, float Health, float HealthDelta, const class UDamageType* DamageType,
+	class AController* InstigatedBy, AActor* DamageCauser)
 {
 	if (Health <= 0.0f && !bDied)
 	{
 		// Die!
 		bDied = true;
 
-
 		GetMovementComponent()->StopMovementImmediately();
-		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);		
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 		DetachFromControllerPendingDestroy();
 
-		// After 10 seconds this pawn will be destroyed
 		SetLifeSpan(10.0f);
 	}
 }
 
-void ASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
+
+// Called every frame
+void ASCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	float TargetFOV = bWantsToZoom ? ZoomedFOV : DefaultFOV;
+	float NewFOV = FMath::FInterpTo(CameraComp->FieldOfView, TargetFOV, DeltaTime, ZoomInterpSpeed);
+
+	CameraComp->SetFieldOfView(NewFOV);
+}
+
+// Called to bind functionality to input
+void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	PlayerInputComponent->BindAxis("MoveForward", this, &ASCharacter::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &ASCharacter::MoveRight);
+
+	PlayerInputComponent->BindAxis("LookUp", this, &ASCharacter::AddControllerPitchInput);
+	PlayerInputComponent->BindAxis("Turn", this, &ASCharacter::AddControllerYawInput);
+
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ASCharacter::BeginCrouch);
+	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ASCharacter::EndCrouch);
+
+	PlayerInputComponent->BindAction("Zoom", IE_Pressed, this, &ASCharacter::BeginZoom);
+	PlayerInputComponent->BindAction("Zoom", IE_Released, this, &ASCharacter::EndZoom);
+
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ASCharacter::StartFire);
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ASCharacter::StopFire);
+
+	// CHALLENGE CODE
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+}
+
+
+FVector ASCharacter::GetPawnViewLocation() const
+{
+	if (CameraComp)
+	{
+		return CameraComp->GetComponentLocation();
+	}
+
+	return Super::GetPawnViewLocation();
+}
+
+
+void ASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ASCharacter, CurrentWeapon);
-	DOREPLIFETIME(ASCharacter, bDied);	
+	DOREPLIFETIME(ASCharacter, bDied);
 }
-

@@ -17,37 +17,35 @@ public:
 
 protected:
 
-	/* Time between powerup tics */
+	/* Time between powerup ticks */
 	UPROPERTY(EditDefaultsOnly, Category = "Powerups")
 	float PowerupInterval;
 
-	/* Total times we applied the powerup effect  */
+	/* Total times we apply the powerup effect */
 	UPROPERTY(EditDefaultsOnly, Category = "Powerups")
-	int32 TotalNumberOfTicks;
+	int32 TotalNrOfTicks;
 
-	FTimerHandle TimerHandler_PowerupTick;  
+	FTimerHandle TimerHandle_PowerupTick;
 
-	/* Total numbers of ticks applied */
+	// Total number of ticks applied
 	int32 TicksProcessed;
-	
+
 	UFUNCTION()
 	void OnTickPowerup();
 
-	// Kepes state of the power up
+	// Keeps state of the power-up
 	UPROPERTY(ReplicatedUsing=OnRep_PowerupActive)
 	bool bIsPowerupActive;
 
 	UFUNCTION()
 	void OnRep_PowerupActive();
 
-	// This implementable event will be implemeneted in blueprint, so we can  use visibility
 	UFUNCTION(BlueprintImplementableEvent, Category = "Powerups")
-	void OnPowerupStateActiveChanged(bool bNewIsActive);
+	void OnPowerupStateChanged(bool bNewIsActive);
 
-public:
+public:	
 
 	void ActivatePowerup(AActor* ActiveFor);
-
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Powerups")
 	void OnActivated(AActor* ActiveFor);
@@ -57,4 +55,5 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Powerups")
 	void OnExpired();
+	
 };

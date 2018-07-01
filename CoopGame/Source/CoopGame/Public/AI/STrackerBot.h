@@ -9,6 +9,7 @@
 class USHealthComponent;
 class USphereComponent;
 class USoundCue;
+
 UCLASS()
 class COOPGAME_API ASTrackerBot : public APawn
 {
@@ -32,17 +33,18 @@ protected:
 	USphereComponent* SphereComp;
 
 	UFUNCTION()
-	void HandleTakeDamage(USHealthComponent* OwningHealthComp, float Health, float HealthDelta, const class UDamageType* DamageType,
-			class AController* InstigatedBy, AActor* DamageCauser);
+	void HandleTakeDamage(USHealthComponent* OwningHealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, 
+		class AController* InstigatedBy, AActor* DamageCauser);
 
-	FVector GetNextPathPoints();
+	FVector GetNextPathPoint();
 
+	// Next point in navigation path
 	FVector NextPathPoint;
 
 	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
 	float MovementForce;
 
-	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot" )
+	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
 	bool bUseVelocityChange;
 
 	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
@@ -54,9 +56,11 @@ protected:
 	void SelfDestruct();
 
 	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
-	UParticleSystem* ExplossionEffect;
+	UParticleSystem* ExplosionEffect;
 
 	bool bExploded;
+
+	// Did we already kick off self destruct timer
 	bool bStartedSelfDestruction;
 
 	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
@@ -82,9 +86,11 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void NotifyActorBeginOverlap(AActor* OtherActor) override;
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 
 protected:
+
+	// CHALLENGE CODE	
 
 	// Find nearby enemies and grow in 'power level' based on the amount.
 	void OnCheckNearbyBots();

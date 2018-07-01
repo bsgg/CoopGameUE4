@@ -25,19 +25,13 @@ protected:
 	virtual void BeginPlay() override;
 
 	void MoveForward(float Value);
+
 	void MoveRight(float Value);
 
 	void BeginCrouch();
+
 	void EndCrouch();
 
-	void BeginZoom();
-	void EndZoom();
-
-	
-
-	// VisibleAnywhere: Indicates that this property is visible in property windows, but cannot be edited at all
-	// BlueprintReadOnly = This property can be read by blueprints, but not modified.
-	// We can modify the properties but not create a new object and assign to this one
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UCameraComponent* CameraComp;
 
@@ -47,7 +41,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USHealthComponent* HealthComp;
 
-	
+	bool bWantsToZoom;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Player")
 	float ZoomedFOV;
 
@@ -56,7 +51,10 @@ protected:
 
 	/* Default FOV set during begin play */
 	float DefaultFOV;
-	bool bWantsToZoom;
+
+	void BeginZoom();
+
+	void EndZoom();
 
 	UPROPERTY(Replicated)
 	ASWeapon* CurrentWeapon;
@@ -68,12 +66,15 @@ protected:
 	FName WeaponAttachSocketName;
 
 	void StartFire();
+
 	void StopFire();
 
 	UFUNCTION()
 	void OnHealthChanged(USHealthComponent* OwningHealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
-	
+	/* Pawn died previously */
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Player")
+	bool bDied;
 
 public:	
 	// Called every frame
@@ -82,10 +83,6 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	virtual FVector GetPawnViewLocation() const override; // Override this function to set the view location as the camera instead of the default (the eye)
-
-														  // Pawn died previously
-	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Player")
-	bool bDied;
+	virtual FVector GetPawnViewLocation() const override;
 	
 };

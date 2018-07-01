@@ -7,9 +7,10 @@
 #include "SWeapon.generated.h"
 
 class USkeletalMeshComponent;
+class UDamageType;
 class UParticleSystem;
 
-// Contain information of a single hitscan linetrace
+// Contains information of a single hitscan weapon linetrace
 USTRUCT()
 struct FHitScanTrace
 {
@@ -19,14 +20,11 @@ public:
 
 	UPROPERTY()
 	TEnumAsByte<EPhysicalSurface> SurfaceType;
-	
-	UPROPERTY()
-	FVector_NetQuantize TraceFrom;
 
 	UPROPERTY()
 	FVector_NetQuantize TraceTo;
-
 };
+
 
 UCLASS()
 class COOPGAME_API ASWeapon : public AActor
@@ -41,14 +39,16 @@ protected:
 
 	virtual void BeginPlay() override;
 
-protected:
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	USkeletalMeshComponent * MeshComp; 
+	USkeletalMeshComponent* MeshComp;
+
+	void PlayFireEffects(FVector TraceEnd);
+
+	void PlayImpactEffects(EPhysicalSurface SurfaceType, FVector ImpactPoint);
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
-	TSubclassOf<class UDamageType> DamageType;
-	
+	TSubclassOf<UDamageType> DamageType;
+
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	FName MuzzleSocketName;
 
@@ -68,28 +68,24 @@ protected:
 	UParticleSystem* TracerEffect;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-	TSubclassOf<class UCameraShake> FireCamShake;
+	TSubclassOf<UCameraShake> FireCamShake;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	float BaseDamage;
-
-	void PlayFireEffect(FVector TraceEndPoint);
-
-	void PlayImpactEffects(EPhysicalSurface SurfaceType, FVector ImpactPoint);
 
 	void Fire();
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerFire();
 
-	FTimerHandle TimerHandle_TimeBetweenShoots;
+	FTimerHandle TimerHandle_TimeBetweenShots;
 
 	float LastFireTime;
 
-	/* RPM = Bullets per minute fired by weapon*/
+	/* RPM - Bullets per minute fired by weapon */
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	float RateOfFire;
-
+	
 	// Derived from RateOfFire
 	float TimeBetweenShots;
 
@@ -99,11 +95,10 @@ protected:
 	UFUNCTION()
 	void OnRep_HitScanTrace();
 
-public:
+public:	
+
 	void StartFire();
 
 	void StopFire();
-
 	
-
 };

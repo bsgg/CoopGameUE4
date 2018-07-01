@@ -8,12 +8,13 @@
 ASPowerupActor::ASPowerupActor()
 {
 	PowerupInterval = 0.0f;
-	TotalNumberOfTicks = 0;
+	TotalNrOfTicks = 0;
 
-	bIsPowerupActive = true;
+	bIsPowerupActive = false;
+
 	SetReplicates(true);
-
 }
+
 
 void ASPowerupActor::OnTickPowerup()
 {
@@ -21,35 +22,35 @@ void ASPowerupActor::OnTickPowerup()
 
 	OnPowerupTicked();
 
-	if (TicksProcessed >= TotalNumberOfTicks)
+	if (TicksProcessed >= TotalNrOfTicks)
 	{
 		OnExpired();
 
 		bIsPowerupActive = false;
-		// This function needs to be called if we are in the server because they are not called on server only in clients
 		OnRep_PowerupActive();
 
 		// Delete timer
-		GetWorldTimerManager().ClearTimer(TimerHandler_PowerupTick);
+		GetWorldTimerManager().ClearTimer(TimerHandle_PowerupTick);
 	}
 }
 
+
 void ASPowerupActor::OnRep_PowerupActive()
 {
-	OnPowerupStateActiveChanged(bIsPowerupActive);
+	OnPowerupStateChanged(bIsPowerupActive);
 }
+
 
 void ASPowerupActor::ActivatePowerup(AActor* ActiveFor)
 {
 	OnActivated(ActiveFor);
 
 	bIsPowerupActive = true;
-	// This function needs to be called if we are in the server because they are not called on server only in clients
 	OnRep_PowerupActive();
 
 	if (PowerupInterval > 0.0f)
 	{
-		GetWorldTimerManager().SetTimer(TimerHandler_PowerupTick, this, &ASPowerupActor::OnTickPowerup, PowerupInterval, true);
+		GetWorldTimerManager().SetTimer(TimerHandle_PowerupTick, this, &ASPowerupActor::OnTickPowerup, PowerupInterval, true);
 	}
 	else
 	{
@@ -57,11 +58,9 @@ void ASPowerupActor::ActivatePowerup(AActor* ActiveFor)
 	}
 }
 
-void ASPowerupActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const
+void ASPowerupActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ASPowerupActor, bIsPowerupActive);
 }
-
-

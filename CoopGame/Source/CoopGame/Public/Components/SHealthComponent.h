@@ -7,7 +7,7 @@
 #include "SHealthComponent.generated.h"
 
 // OnHealthChanged event
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_SixParams(FOnHealthChangeSignature, USHealthComponent*, HealthComp, float, Health, float, HealthDelta, const class UDamageType*, DamageType, class AController*, InstigatedBy, AActor*, DamageCauser);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_SixParams(FOnHealthChangedSignature, USHealthComponent*, OwningHealthComp, float, Health, float, HealthDelta, const class UDamageType*, DamageType, class AController*, InstigatedBy, AActor*, DamageCauser);
 
 UCLASS( ClassGroup=(COOP), meta=(BlueprintSpawnableComponent) )
 class COOPGAME_API USHealthComponent : public UActorComponent
@@ -20,11 +20,11 @@ public:
 
 protected:
 	// Called when the game starts
-	virtual void BeginPlay() override; 
+	virtual void BeginPlay() override;
 
 	bool bIsDead;
 
-	UPROPERTY(ReplicatedUsing=OnRep_Health, EditDefaultsOnly, BlueprintReadOnly, Category = "HealthComponent")
+	UPROPERTY(ReplicatedUsing=OnRep_Health, BlueprintReadOnly, Category = "HealthComponent")
 	float Health;
 
 	UFUNCTION()
@@ -35,15 +35,14 @@ protected:
 
 	UFUNCTION()
 	void HandleTakeAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
-
+	
 public:
 
 	float GetHealth() const;
-	
 
-	UPROPERTY(BlueprintAssignable, Category="Events")
-	FOnHealthChangeSignature OnHealthChanged;
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+	FOnHealthChangedSignature OnHealthChanged;
 
-	UFUNCTION(BlueprintCallable, Category = "Components")
+	UFUNCTION(BlueprintCallable, Category = "HealthComponent")
 	void Heal(float HealAmount);
 };

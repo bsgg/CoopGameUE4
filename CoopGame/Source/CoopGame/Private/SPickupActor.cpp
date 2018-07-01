@@ -15,11 +15,11 @@ ASPickupActor::ASPickupActor()
 	RootComponent = SphereComp;
 
 	DecalComp = CreateDefaultSubobject<UDecalComponent>(TEXT("DecalComp"));
-	DecalComp->SetRelativeRotation(FRotator(90.0f, 0.0f, 0.0f));
-	DecalComp->DecalSize = FVector(64.0f, 75.0f,75.0f );
+	DecalComp->SetRelativeRotation(FRotator(90, 0.0f, 0.0f));
+	DecalComp->DecalSize = FVector(64, 75, 75);
 	DecalComp->SetupAttachment(RootComponent);
 
-	CoolDownDuration = 10.0f;
+	CooldownDuration = 10.0f;
 
 	SetReplicates(true);
 }
@@ -29,7 +29,6 @@ void ASPickupActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	// Only spawn on the server not clients
 	if (Role == ROLE_Authority)
 	{
 		Respawn();
@@ -39,9 +38,9 @@ void ASPickupActor::BeginPlay()
 
 void ASPickupActor::Respawn()
 {
-	if (PowerUpClass == NULL)
+	if (PowerUpClass == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[ASPickupActor::Respawn] PowerUpClass is nullptr in: %s"), *GetName());
+		UE_LOG(LogTemp, Warning, TEXT("PowerUpClass is nullptr in %s. Please update your Blueprint"), *GetName());
 		return;
 	}
 
@@ -56,17 +55,12 @@ void ASPickupActor::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
 
-	UE_LOG(LogTemp, Warning, TEXT("[ASPickupActor::NotifyActorBeginOverlap]"));
-
-	// Grant a powerup to player if available
-	// Only make this logic on the server
-	if (PowerUpInstance && (Role == ROLE_Authority))
+	if (Role == ROLE_Authority && PowerUpInstance)
 	{
 		PowerUpInstance->ActivatePowerup(OtherActor);
 		PowerUpInstance = nullptr;
 
-		// Set timer to respawn
-		GetWorldTimerManager().SetTimer(TimerHandle_RespawnTimer, this, &ASPickupActor::Respawn, CoolDownDuration);
+		// Set Timer to respawn powerup
+		GetWorldTimerManager().SetTimer(TimerHandle_RespawnTimer, this, &ASPickupActor::Respawn, CooldownDuration);
 	}
 }
-

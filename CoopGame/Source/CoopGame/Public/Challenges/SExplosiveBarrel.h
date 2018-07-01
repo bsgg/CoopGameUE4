@@ -6,11 +6,12 @@
 #include "GameFramework/Actor.h"
 #include "SExplosiveBarrel.generated.h"
 
+
 class USHealthComponent;
 class UStaticMeshComponent;
 class URadialForceComponent;
 class UParticleSystem;
-class UMaterialInterface;
+
 
 UCLASS()
 class COOPGAME_API ASExplosiveBarrel : public AActor
@@ -23,36 +24,35 @@ public:
 
 protected:
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UPROPERTY(VisibleAnywhere, Category = "Components")
 	USHealthComponent* HealthComp;
 
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UStaticMeshComponent* MeshComp;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UPROPERTY(VisibleAnywhere, Category = "Components")
 	URadialForceComponent* RadialForceComp;
 
-
 	UFUNCTION()
-	void OnHealthChanged(USHealthComponent* OwningHealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+	void OnHealthChanged(USHealthComponent* OwningHealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, 
+		class AController* InstigatedBy, AActor* DamageCauser);
 
-	UPROPERTY(ReplicatedUsing = OnRep_Exploded)
+	UPROPERTY(ReplicatedUsing=OnRep_Exploded)
 	bool bExploded;
 
 	UFUNCTION()
 	void OnRep_Exploded();
 
-	// Impulse appplied to the barrel mesh when it explodes to boost it up a little
+	/* Impulse applied to the barrel mesh when it explodes to boost it up a little */
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	float ExplosionImpulse;
-
-	// Particle to play when healt reached zero
+	
+	/* Particle to play when health reached zero */
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
 	UParticleSystem* ExplosionEffect;
 
-	// The material to replace the original on the mesh once exploded (a blakend version)
+	/* The material to replace the original on the mesh once exploded (a blackened version) */
 	UPROPERTY(EditDefaultsOnly, Category = "FX")
-	UMaterialInterface* ExplosionMaterial;
-	
+	UMaterialInterface* ExplodedMaterial;
+
 };

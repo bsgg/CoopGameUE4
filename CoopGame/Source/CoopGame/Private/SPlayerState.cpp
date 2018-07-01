@@ -2,8 +2,10 @@
 
 #include "SPlayerState.h"
 
-void ASPlayerState::AddScore(float SocreDelta)
-{
-	Score += SocreDelta;
-}
 
+
+
+void ASPlayerState::AddScore(float ScoreDelta)
+{
+	Score += ScoreDelta;
+}
