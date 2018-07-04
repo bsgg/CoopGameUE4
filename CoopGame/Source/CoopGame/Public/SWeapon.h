@@ -85,6 +85,10 @@ protected:
 	/* RPM - Bullets per minute fired by weapon */
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	float RateOfFire;
+
+	/* Bullet spread in Degress */
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon", meta = (ClampMin = 0.0f))
+	float BulletSpread;
 	
 	// Derived from RateOfFire
 	float TimeBetweenShots;
